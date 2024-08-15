@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "python": "^0.0.4",
+    "sweetalert": "^2.1.2"
+  }
+}

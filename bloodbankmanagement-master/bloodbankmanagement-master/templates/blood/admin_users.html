@@ -1,0 +1,59 @@
+
+{% extends 'blood/adminbase.html' %}
+{% block content %}
+{% load static %}
+<br><br>
+<div class="container">
+    <h1>{{ staff_district }}</h1>
+    <h4 class="text-center">USER DETAILS</h4><br>
+    <table class="table table-light table-hover table-bordered table-striped">
+        <thead class="bg-info">
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Profile</th>
+                <th scope="col">District</th>
+                <th scope="col">Mobile</th>
+                <th scope="col">EMAIL</th>
+                <th class="text-right">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if userdistrict.count > 0 %}
+                {% for t in userdistrict %}
+                    <tr>
+                        <td>{{ t.get_name }}</td>
+                        <td>
+                            {% if t.profile_pic %}
+                                <img src="{% static t.profile_pic.url %}" alt="Profile Pic" height="40px" width="40px" />
+                            {% else %}
+                                No image
+                            {% endif %}
+                        </td>
+                        <td>{{ t.district }}</td> <!-- Assuming 'address' field refers to the district -->
+                        <td>{{ t.mobile }}</td>
+                        <td>{{ t.Email }}</td>
+                        <td class="text-right">
+                            <button class="btn btn-primary badge-pill" style="width: 80px;">
+                                <a style="text-decoration: none; color: white;" href="{% url 'update-donor' t.id %}">EDIT</a>
+                            </button>
+                            <button class="btn btn-danger badge-pill" style="width: 80px;">
+                                <a style="text-decoration: none; color: white;" href="{% url 'delete-donor' t.id %}">DELETE</a>
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">No User Found</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!--
+developed By : sumit kumar
+facebook : fb.com/sumit.luv
+youtube : youtube.com/lazycoders
+-->
+{% endblock content %}
