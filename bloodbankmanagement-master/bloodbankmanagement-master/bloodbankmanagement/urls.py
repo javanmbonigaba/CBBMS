@@ -36,7 +36,8 @@ urlpatterns = [
 
     # User dashboard
     path('user_dashboard', views.user_dashboard, name='user_dashboard'),
-    
+    path('delete-user/<int:pk>', views.user_delete,  name='delete-user'),
     # Admin users view
     path('admin_users_view', views.admin_users_view, name='admin_users_view'),
+    path('update-user/<int:pk>', views.update_user, name='update-user'),
 ]

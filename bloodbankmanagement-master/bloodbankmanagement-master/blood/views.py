@@ -21,6 +21,7 @@ from django.contrib import messages
 from patient import forms as pforms
 from blood.forms import UserdistrictForm
 from blood.models import users
+from django.contrib.auth import get_user_model
 
 def home_view(request):
     x=models.Stock.objects.all()
@@ -88,7 +89,7 @@ def admin_dashboard_view(request):
         staff_district = "Admin" 
     else:
         staff_district =users.objects.get(user=request.user).district+" "+"District"
-           
+
     totalunit=models.Stock.objects.aggregate(Sum('unit'))
     dict={
         'staff_district':staff_district,
@@ -176,7 +177,7 @@ def admin_users_view(request):
         staff_district = "Admin" 
     else:
         staff_district =users.objects.get(user=request.user).district+" "+"District"
-    userdistrict=umodels.users.objects.all()            
+    userdistrict=umodels.users.objects.all()
     return render(request,'blood/admin_users.html',{'userdistrict':userdistrict, 'staff_district':staff_district,})
 
 @login_required(login_url='adminlogin')
@@ -367,7 +368,7 @@ def approve_donation_view(request,pk):
     stock.save()
     # donor = dmodels.Donor.objects.get(id=user)
     # patient_email = donor.Email
-   
+
     donor_email = dmodels.Donor.Email
         
     print(f'patient email was {donor_email}')
@@ -412,3 +413,62 @@ def user_dashboard(request):
             my_users.user_set.add(user)
             return redirect('admin_users_view')  # Redirect to appropriate page after successful registration
     return render(request, 'users/users.html', context)
+
+@login_required(login_url='adminlogin')
+def user_delete(request,pk):
+    blood_user = get_object_or_404(users, id=pk)  # Ensure 'users' is your blood_user model
+    auth_user=User.objects.get(id=blood_user.user_id)
+    blood_user.delete()
+    auth_user.delete()
+    
+
+    return redirect('admin_users_view')
+
+
+@login_required(login_url='adminlogin')
+def update_user(request,pk):
+    if request.user.is_superuser:
+        staff_district = "Admin" 
+    else:
+        staff_district =users.objects.get(user=request.user).district+" "+"District"
+    blood_user = get_object_or_404(users, id=pk)
+    auth_user = User.objects.get(id=blood_user.user_id)
+    return render(request, 'blood/update_user.html',{'staff_district':staff_district})
+
+@login_required(login_url='adminlogin')
+def update_user(request, pk):
+    # Fetch the user and the associated user district data
+    user_instance = get_object_or_404(users, id=pk)
+    users_instance = User.objects.get(id=user_instance.user_id)
+
+    # Initialize the forms with the existing data
+    userForm = forms.UsersdistrictForm(instance=user_instance)
+    UserdistrictForm = forms.UserdistrictForm(instance=users_instance)
+
+    if request.method == 'POST':
+        userForm = forms.UsersdistrictForm(request.POST, instance=user_instance)
+        UserdistrictForm = forms.UserdistrictForm(request.POST, request.FILES, instance=users_instance)
+
+        if userForm.is_valid() and UserdistrictForm.is_valid():
+            user = userForm.save(commit=False)
+            if 'password' in userForm.changed_data:
+                user.set_password(user.password)  # Hash the password if it was changed
+            user.is_staff = True
+            user.save()
+
+            users_instance = UserdistrictForm.save(commit=False)
+            users_instance.user = user
+            users_instance.save()
+
+            my_users, created = Group.objects.get_or_create(name='users')
+            my_users.user_set.add(user)
+
+            return redirect('admin_users_view')  # Redirect to the user list or appropriate page after successful update
+
+    context = {
+        'userForm': userForm,
+        'UserdistrictForm': UserdistrictForm,
+        'staff_district': request.user.get_profile().district if not request.user.is_superuser else 'Admin'
+    }
+    
+    return render(request, 'blood/update_user.html', context)

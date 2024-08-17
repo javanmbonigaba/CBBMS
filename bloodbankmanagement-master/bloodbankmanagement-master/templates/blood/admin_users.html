@@ -34,10 +34,10 @@
                         <td>{{ t.Email }}</td>
                         <td class="text-right">
                             <button class="btn btn-primary badge-pill" style="width: 80px;">
-                                <a style="text-decoration: none; color: white;" href="{% url 'update-donor' t.id %}">EDIT</a>
+                                <a style="text-decoration: none; color: white;" href="{% url 'update-user' t.id %}">EDIT</a>
                             </button>
                             <button class="btn btn-danger badge-pill" style="width: 80px;">
-                                <a style="text-decoration: none; color: white;" href="{% url 'delete-donor' t.id %}">DELETE</a>
+                                <a style="text-decoration: none; color: white;" href="{% url 'delete-user' t.id %}">DELETE</a>
                             </button>
                         </td>
                     </tr>

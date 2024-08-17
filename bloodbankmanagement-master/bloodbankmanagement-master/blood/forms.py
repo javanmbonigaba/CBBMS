@@ -14,9 +14,6 @@ class RequestForm(forms.ModelForm):
         model=models.BloodRequest
         fields=['patient_name','patient_age','reason','bloodgroup','unit']
 
-
-
-
 class UserdistrictForm(forms.ModelForm):
     class Meta:
         model=models.users
