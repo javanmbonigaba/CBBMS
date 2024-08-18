@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'donor',
     'patient',
     'users',
+    'event',
 ]
 
 MIDDLEWARE = [
@@ -81,7 +82,7 @@ WSGI_APPLICATION = 'bloodbankmanagement.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-   'default': {
+    'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bbm',         # Replace with your database name
         'USER': 'root',            # Replace with your database username

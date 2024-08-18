@@ -1,0 +1,51 @@
+
+{% extends 'blood/adminbase.html' %}
+{% block content %}
+{% load static %}
+<br><br>
+<div class="container">
+    <h1>{{ staff_district }}</h1>
+    <h4 class="text-center">EVENT DETAILS</h4><br>
+    <table class="table table-light table-hover table-bordered table-striped">
+        <thead class="bg-info">
+            <tr>
+                <th scope="col">TITLE</th>
+                <th scope="col">DESCRIPTION</th>
+                <th scope="col">VENUE</th>
+                <th scope="col">TIME</th>
+                <th class="text-right">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if events.count > 0 %}
+                {% for event in events %}
+                    <tr>
+                        <td>{{ event.title }}</td>
+                        <td>{{ event.description }}</td>
+                        <td>{{ event.venue }}</td> <!-- Assuming 'address' field refers to the district -->
+                        <td>{{ event.time }}</td>
+                        <td class="text-right">
+                            <button class="btn btn-primary badge-pill" style="width: 80px;">
+                                <a style="text-decoration: none; color: white;" href="{% url 'update-event' event.id %}">EDIT</a>
+                            </button>
+                            <button class="btn btn-danger badge-pill" style="width: 80px;">
+                                <a style="text-decoration: none; color: white;" href="{% url 'delete-event' event.id %}">DELETE</a>
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">No Event Found</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<!--
+developed By : sumit kumar
+facebook : fb.com/sumit.luv
+youtube : youtube.com/lazycoders
+-->
+{% endblock content %}

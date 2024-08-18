@@ -26,7 +26,7 @@ class users(models.Model):
     profile_pic= models.ImageField(upload_to='profile_pic/Donor/',null=True,blank=True)
     district = models.CharField(max_length=40)
     mobile = models.CharField(max_length=20,null=False)
-    Email = models.CharField(max_length=40)
+    email = models.CharField(max_length=40)
 
 
     @property

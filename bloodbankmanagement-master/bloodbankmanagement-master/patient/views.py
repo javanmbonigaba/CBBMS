@@ -41,7 +41,6 @@ def patient_dashboard_view(request):
         'requestrejected': bmodels.BloodRequest.objects.all().filter(request_by_patient=patient).filter(status='Rejected').count(),
 
     }
-   
     return render(request,'patient/patient_dashboard.html',context=dict)
 
 def make_request_view(request):
@@ -61,3 +60,4 @@ def my_request_view(request):
     patient= models.Patient.objects.get(user_id=request.user.id)
     blood_request=bmodels.BloodRequest.objects.all().filter(request_by_patient=patient)
     return render(request,'patient/my_request.html',{'blood_request':blood_request})
+

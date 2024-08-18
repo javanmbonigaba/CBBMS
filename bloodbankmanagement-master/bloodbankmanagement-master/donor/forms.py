@@ -6,7 +6,7 @@ from . import models
 class DonorUserForm(forms.ModelForm):
     class Meta:
         model=User
-        fields=['first_name','last_name','username','password',]
+        fields=['first_name','last_name','username','password','email']
         widgets = {
         'password': forms.PasswordInput()
         }
@@ -14,7 +14,7 @@ class DonorUserForm(forms.ModelForm):
 class DonorForm(forms.ModelForm):
     class Meta:
         model=models.Donor
-        fields=['bloodgroup','district','mobile','profile_pic','Email']
+        fields=['bloodgroup','district','mobile','profile_pic','email']
 
 class DonationForm(forms.ModelForm):
     class Meta:

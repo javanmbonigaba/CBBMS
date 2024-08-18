@@ -192,11 +192,12 @@
         <li><a style="text-decoration:none;" href="/admin-request"><i class="fas fa-sync-alt"></i>Blood Requests</a></li>
         <li><a style="text-decoration:none;" href="/admin-request-history"><i class="fas fa-history"></i>Request History</a></li>
         <li><a style="text-decoration:none;" href="/admin-blood"><i class="fas fa-hand-holding-water"></i>Blood Stock</a></li>
-
         {% if request.user.is_superuser %}
         <li><a style="text-decoration:none;" href="/user_dashboard"><i class="fas fa-user"></i>Add user</a></li>
         <li><a style="text-decoration:none;" href="/admin_users_view"><i class="fas fa-user"></i>Manage users</a></li>
         {% endif %}
+        <li><a href="/admin-event"><i class="fas fa-calendar"></i>Add event</a></li>
+        <li><a href="/admin-event-view"><i class="fas fa-calendar"></i>Manage events</a></li>
       </ul>
     </div>
     <div class="main_content">

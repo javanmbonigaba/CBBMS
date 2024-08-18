@@ -17,7 +17,7 @@ class RequestForm(forms.ModelForm):
 class UserdistrictForm(forms.ModelForm):
     class Meta:
         model=models.users
-        fields=['district','mobile','profile_pic','Email']
+        fields=['district','mobile','profile_pic','email']
 
 class UsersdistrictForm(forms.ModelForm):
     class Meta:
@@ -26,3 +26,4 @@ class UsersdistrictForm(forms.ModelForm):
         widgets = {
         'password': forms.PasswordInput()
         }
+

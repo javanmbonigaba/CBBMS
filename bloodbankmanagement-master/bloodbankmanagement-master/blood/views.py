@@ -17,6 +17,8 @@ from patient import models as pmodels
 from blood import models as umodels
 from donor import forms as dforms
 from blood import forms
+from event import forms as eforms
+from event import models as emodels
 from django.contrib import messages
 from patient import forms as pforms
 from blood.forms import UserdistrictForm
@@ -244,6 +246,7 @@ def update_patient_view(request,pk):
     if request.method=='POST':
         userForm=pforms.PatientUserForm(request.POST,instance=user)
         patientForm=pforms.PatientForm(request.POST,request.FILES,instance=patient)
+        # TODO:
         if userForm.is_valid() and patientForm.is_valid():
             user=userForm.save()
             user.set_password(user.password)
@@ -289,36 +292,10 @@ def admin_donation_view(request):
     else:
         staff_district =users.objects.get(user=request.user).district+" "+"District"
     donations=dmodels.BloodDonate.objects.all()
+    # TODO:
     return render(request,'blood/admin_donation.html',{'donations':donations,'staff_district':staff_district})
 
 @login_required(login_url='adminlogin')
-# def update_approve_status_view(request, pk):
-#     req = models.BloodRequest.objects.get(id=pk)
-#     message = None
-#     bloodgroup = req.bloodgroup
-#     unit = req.unit
-#     stock = models.Stock.objects.get(bloodgroup=bloodgroup)
-
-#     if stock.unit >= unit:
-#         stock.unit = stock.unit - unit
-#         stock.save()
-#         req.status = "Approved"
-#         req.save()
-
-#         # Send email notification to the patient
-#         patient_email = req.patient.user.email  # Assuming you have a relationship between BloodRequest and PatientFIXME:
-#         send_mail(
-#             'Blood Request Approved',
-#             f'Your request for {unit} units of {bloodgroup} blood has been approved. Please visit the hospital to collect it.',
-#             EMAIL_HOST_USER,  # From email
-#             [patient_email],  # To email
-#             fail_silently=True,
-#         )
-#     else:
-#         message = f"Stock Does Not Have Enough Blood To Approve This Request, Only {stock.unit} Unit Available"
-
-#     requests = models.BloodRequest.objects.all().filter(status='Pending')
-#     return render(request, 'blood/admin_request.html', {'requests': requests, 'message': message})
 
 def update_approve_status_view(request,pk):
     
@@ -448,23 +425,18 @@ def update_user(request, pk):
     if request.method == 'POST':
         userForm = forms.UsersdistrictForm(request.POST, instance=user_instance)
         UserdistrictForm = forms.UserdistrictForm(request.POST, request.FILES, instance=users_instance)
-
         if userForm.is_valid() and UserdistrictForm.is_valid():
             user = userForm.save(commit=False)
             if 'password' in userForm.changed_data:
                 user.set_password(user.password)  # Hash the password if it was changed
             user.is_staff = True
             user.save()
-
             users_instance = UserdistrictForm.save(commit=False)
             users_instance.user = user
             users_instance.save()
-
             my_users, created = Group.objects.get_or_create(name='users')
             my_users.user_set.add(user)
-
             return redirect('admin_users_view')  # Redirect to the user list or appropriate page after successful update
-
     context = {
         'userForm': userForm,
         'UserdistrictForm': UserdistrictForm,
@@ -472,3 +444,72 @@ def update_user(request, pk):
     }
     
     return render(request, 'blood/update_user.html', context)
+
+
+
+@login_required(login_url='adminlogin')
+def create_event(request):
+    if request.method == 'POST':
+        eventForm = eforms.EventForm(request.POST)
+        if eventForm.is_valid():
+            event = eventForm.save()  # Save the event and get the instance
+            venue_district = event.venue
+            
+            # Fetch donors based on venue district
+            donors_to_notify = dmodels.Donor.objects.filter(district=venue_district)
+            patient_to_notify = pmodels.Patient.objects.filter(address = venue_district)
+            
+            # Extract user IDs from donors and fetch corresponding User objects
+            donor_ids = donors_to_notify.values_list('user_id', flat=True)
+            patient_ids = patient_to_notify.values_list('user_id', flat=True)
+            user_ids = list(donor_ids) + list(patient_ids)
+            users_to_notify = User.objects.filter(id__in=user_ids)
+            
+            # Print user information for debugging
+            for user in users_to_notify:
+                print(f'User to notify: {user.first_name}, Email: {user.email}')
+            
+            # Send email to each user
+            for user in users_to_notify:
+                send_mail(
+                    'Blood Donation Drive Notification',
+                    f'Dear {user.first_name},\n\nWe are pleased to inform you about an upcoming blood donation drive in {venue_district}. Your participation would be greatly appreciated.\n\nEvent Details:\nTitle: {event.title}\nDescription: {event.description}\nVenue: {event.venue}\nTime: {event.time}\n\nThank you for your support!',
+                    EMAIL_HOST_USER,
+                    [user.email],  # Correct field for email
+                    fail_silently=True,
+                )
+                
+            return redirect('admin-event-view')  # Redirect to the list of events after saving
+    else:
+        eventForm = eforms.EventForm()
+    
+    return render(request, 'blood/admin_event.html', {'eventForm': eventForm})
+
+@login_required(login_url='adminlogin')
+def admin_event_view(request):
+    event=emodels.Event.objects.all()
+    return render(request, 'blood/admin_event_view.html',{'events':event})
+
+
+@login_required(login_url='adminlogin')
+def delete_event_view(request,pk):
+    event=emodels.Event.objects.get(id=pk)
+    event.delete()
+    return redirect('admin-event-view')
+
+
+@login_required(login_url='adminlogin')
+def update_event_view(request, pk):
+    # Fetch the event instance or return a 404 if not found
+    event_instance = get_object_or_404(emodels.Event, pk=pk)
+    if request.method == 'POST':
+        # Create a form instance with the POST data and the instance to update
+        form = eforms.EventForm(request.POST, instance=event_instance)
+        if form.is_valid():
+            form.save()  # Save the updated event data
+            return redirect('admin-event-view')  # Redirect to a page showing the list of events or another suitable page
+    else:
+        # Create a form instance with the existing event data
+        form = eforms.EventForm(instance=event_instance)
+    
+    return render(request, 'blood/admin_event.html', {'eventForm': form})
